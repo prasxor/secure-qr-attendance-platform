@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from .config import Config
 
+
 db = SQLAlchemy()
 migrate = Migrate()
 
@@ -15,6 +16,8 @@ def create_app():
     
     db.init_app(app)
     migrate.init_app(app,db)
+    
+    from app.models import user
     
     @app.route("/health")
     def health_check():
