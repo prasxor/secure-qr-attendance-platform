@@ -8,3 +8,6 @@ class Config:
     )
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "jwt-dev-secret")
+    JWT_ACCESS_TOKEN_EXPIRES = 60 * 60* 24 # 24 hrs

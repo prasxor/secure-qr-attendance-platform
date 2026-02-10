@@ -47,6 +47,7 @@ from werkzeug.security import generate_password_hash
 from app import db
 from app.models.user import User
 
+
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 
@@ -85,6 +86,7 @@ def register():
     }), 201
 
 from werkzeug.security import check_password_hash
+from flask_jwt_extended import create_access_token
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
@@ -107,8 +109,24 @@ def login():
     if not check_password_hash(user.password_hash,password):
         return jsonify({"error": "Invalid credentials"}), 401
     
+    # return jsonify({
+    #     "message": "Login successful",
+    #     "user_id": user.id,
+    #     "is_admin": user.is_admin
+    # }), 200
+    
+    access_token = create_access_token(identity=user.id)
+
     return jsonify({
-        "message": "Login successful",
+        "access_token": access_token,
         "user_id": user.id,
         "is_admin": user.is_admin
     }), 200
+    
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+@auth_bp.route("/me", methods=["GET"])
+@jwt_required()
+def me():
+    user_id = get_jwt_identity()
+    return jsonify({"user_id": user_id}), 200
