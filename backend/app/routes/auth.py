@@ -83,3 +83,32 @@ def register():
         "message": "User registered successfully",
         "user_id": user.id
     }), 201
+
+from werkzeug.security import check_password_hash
+
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Missing JSON body"}), 400
+    
+    email= data.get("email")
+    password = data.get("password")
+
+    if not all([email,password]):
+        return jsonify({"error": "Email and password required"}), 400
+    
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({"error": "Invalid credentials"}), 401
+    
+    if not check_password_hash(user.password_hash,password):
+        return jsonify({"error": "Invalid credentials"}), 401
+    
+    return jsonify({
+        "message": "Login successful",
+        "user_id": user.id,
+        "is_admin": user.is_admin
+    }), 200
