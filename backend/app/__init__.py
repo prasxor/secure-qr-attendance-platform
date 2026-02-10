@@ -17,6 +17,9 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app,db)
     
+    from app.routes.auth import auth_bp
+    app.register_blueprint(auth_bp)
+    
     from app.models import user
     
     @app.route("/health")
