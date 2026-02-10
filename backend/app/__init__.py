@@ -20,6 +20,13 @@ def create_app():
     migrate.init_app(app,db)
     jwt.init_app(app)
     
+    from app.models import user,profile
+    
+    from app.routes.auth import auth_bp
+    from app.routes.profile import profile_bp
+    
+    app.register_blueprint(profile_bp)
+    
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp)
     
