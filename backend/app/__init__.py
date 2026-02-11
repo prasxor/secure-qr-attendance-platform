@@ -30,6 +30,9 @@ def create_app():
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp)
     
+    from app.routes.qr import qr_bp
+    app.register_blueprint(qr_bp)
+    
     from app.models import user
     
     @app.route("/health")
