@@ -130,3 +130,11 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 def me():
     user_id = get_jwt_identity()
     return jsonify({"user_id": user_id}), 200
+
+
+from app.utils.decorators import admin_required
+
+@auth_bp.route("/admin-test", methods=["GET"])
+@admin_required
+def admin_test():
+    return {"message": "Admin access granted"}, 200
