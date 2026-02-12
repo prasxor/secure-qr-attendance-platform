@@ -1,9 +1,11 @@
 from flask import Blueprint, request, jsonify
 from datetime import date
+from datetime import datetime
 from app import db
 from app.models.attendance import Attendance
 from app.utils.qr_utils import verify_qr_token
 from app.utils.decorators import admin_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 attendance_bp = Blueprint(
     "attendance",
@@ -49,3 +51,36 @@ def scan_qr():
     db.session.commit()
 
     return jsonify({"message": "Attendance marked successfully"}), 200
+
+@attendance_bp.route("/calendar", methods=["GET"])
+@jwt_required()
+def get_calendar():
+    user_id = get_jwt_identity()
+
+    month = request.args.get("month") # YYYY-MM
+
+    if not month:
+        return jsonify({"error": "Month parameter required (YYYY-MM)"}), 400
+
+    try:
+        start_date = datetime.strptime(month + "-01", "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({"error": "Invalid month format"}), 400
+    
+    if start_date.month== 12:
+        end_date = start_date.replace(year=start_date.year+1, month=1)
+    else:
+        end_date = start_date.replace(month=start_date.month+1)
+
+    records = Attendance.query.filter(
+        Attendance.user_id == user_id,
+        Attendance.attendance_date >= start_date,
+        Attendance.attendance_date < end_date
+    ).all()
+    
+    present_days = [str(r.attendance_date) for r in records]
+
+    return jsonify({
+        "month": month,
+        "present_days": present_days
+    }),200
