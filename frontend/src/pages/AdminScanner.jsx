@@ -66,10 +66,12 @@ function AdminScanner() {
           Admin QR Scanner
         </h2>
 
-        <div
-          id="reader"
-          className="w-full h-80 border rounded-lg overflow-hidden"
-        ></div>
+        <div className="w-full flex justify-center">
+          <div
+            id="reader"
+            className="w-full max-w-sm aspect-[3/4] border-2 border-indigo-500 rounded-2xl overflow-hidden shadow-inner"
+          ></div>
+        </div>
 
         {message && (
           <div className="mt-4 p-3 bg-gray-100 rounded-lg">

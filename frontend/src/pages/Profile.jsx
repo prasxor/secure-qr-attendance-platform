@@ -1,133 +1,43 @@
-// import { useContext } from "react";
-// import { AuthContext } from "../context/AuthContext";
-// import QRCodeBox from "../components/QRCodeBox";
-// import AttendanceCalendar from "../components/AttendanceCalendar";
-
-// function Profile() {
-//   const { user, logout } = useContext(AuthContext);
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 p-6">
-//       <div className="max-w-xl mx-auto bg-white shadow-lg rounded-2xl p-6">
-
-//         <h2 className="text-2xl font-bold mb-4 text-center">
-//           User Profile
-//         </h2>
-
-//         <div className="space-y-2 text-gray-700">
-//           <p><strong>User ID:</strong> {user.user_id}</p>
-//           <p>
-//             <strong>Role:</strong>{" "}
-//             {user.is_admin ? (
-//               <span className="text-green-600 font-semibold">
-//                 Admin
-//               </span>
-//             ) : (
-//               <span className="text-blue-600 font-semibold">
-//                 User
-//               </span>
-//             )}
-//           </p>
-//         </div>
-
-//         <button
-//           onClick={logout}
-//           className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
-//         >
-//           Logout
-//         </button>
-
-//         <div className="mt-6">
-//           <QRCodeBox />
-//         </div>
-
-//         <div className="mt-6">
-//           <AttendanceCalendar />
-//         </div>
-
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Profile;
-
-// import { useContext } from "react";
-// import { AuthContext } from "../context/AuthContext";
-// import QRCodeBox from "../components/QRCodeBox";
-
-// function Profile() {
-//   const { user, logout } = useContext(AuthContext);
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center p-6">
-
-//       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 text-center">
-
-//         {/* Avatar */}
-//         <div className="w-24 h-24 mx-auto rounded-full bg-indigo-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-//           {user.user_id}
-//         </div>
-
-//         <h2 className="text-2xl font-bold mt-4">
-//           User Profile
-//         </h2>
-
-//         <p className="text-gray-500 mt-1">
-//           {user.is_admin ? "Administrator" : "Regular User"}
-//         </p>
-
-//         {/* Options Card */}
-//         <div className="mt-6 bg-gray-50 rounded-xl p-4 shadow-inner">
-//           <div className="flex justify-between items-center mb-2">
-//             <span className="text-gray-600">User ID</span>
-//             <span className="font-semibold">{user.user_id}</span>
-//           </div>
-
-//           <div className="flex justify-between items-center">
-//             <span className="text-gray-600">Role</span>
-//             <span className={`font-semibold ${user.is_admin ? "text-green-600" : "text-blue-600"}`}>
-//               {user.is_admin ? "Admin" : "User"}
-//             </span>
-//           </div>
-//         </div>
-
-//         {/* QR Section */}
-//         <div className="mt-6">
-//           <QRCodeBox />
-//         </div>
-
-//         <button
-//           onClick={logout}
-//           className="mt-6 w-full bg-red-500 text-white py-2 rounded-xl hover:bg-red-600 transition"
-//         >
-//           Logout
-//         </button>
-
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Profile;
-
-
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import QRCodeBox from "../components/QRCodeBox";
 import AttendanceCalendar from "../components/AttendanceCalendar";
-import { QrCode, User } from "lucide-react";
+import { QrCode, User, Camera } from "lucide-react";
+import http from "../api/http"
 
 function Profile() {
   const { user, logout } = useContext(AuthContext);
   const [showQR, setShowQR] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const res = await http.get("/profile");
+        setProfileData(res.data);
+      } catch (err) {
+        setProfileData(null);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   return (
     <div className="h-screen overflow-hidden bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4">
       <div className="h-full flex flex-col md:flex-row gap-6">
-        
+
         {/* LEFT SIDE - PROFILE / QR CARD */}
         <div className="md:w-1/2 w-full h-full bg-white rounded-3xl shadow-2xl p-8 relative flex flex-col justify-center">
+
+          {user.is_admin && (
+            <button
+              onClick={() => window.location.href = "/scanner"}
+              className="absolute top-6 left-6 bg-green-600 text-white p-2 rounded-full shadow-lg hover:bg-green-700 transition"
+            >
+              <Camera size={20} />
+            </button>
+          )}
 
           {/* Toggle Button */}
           <button
@@ -140,11 +50,17 @@ function Profile() {
           {!showQR ? (
             <>
               <div className="w-24 h-24 mx-auto rounded-full bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                {user.user_id}
+                {profileData?.photo_url && (
+                  <img
+                    src={profileData.photo_url}
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                )}
               </div>
 
               <h2 className="text-2xl font-bold mt-6 text-center">
-                Welcome Back
+                Welcome Back, {profileData?.name || "User"}
               </h2>
 
               <p className="text-gray-500 text-center mt-1">
@@ -152,10 +68,6 @@ function Profile() {
               </p>
 
               <div className="mt-6 bg-gray-50 rounded-xl p-4 shadow-inner space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">User ID</span>
-                  <span className="font-semibold">{user.user_id}</span>
-                </div>
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Role</span>
@@ -163,6 +75,24 @@ function Profile() {
                     {user.is_admin ? "Admin" : "User"}
                   </span>
                 </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-600">User ID</span>
+                  <span className="font-semibold">{user.user_id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Phone no.</span>
+                  <span className="font-semibold">{profileData?.email}</span>
+                </div>
+
+
+
+                <button
+                  onClick={() => window.location.href = "/edit-profile"}
+                  className="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+                >
+                  Edit Profile
+                </button>
               </div>
 
               <button

@@ -4,6 +4,7 @@ import http from "../api/http";
 
 const Register = () => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Register = () => {
 
     try {
       await http.post("/auth/register", {
+        name,
         email,
         password,
       });
@@ -20,7 +22,7 @@ const Register = () => {
       setMessage("Registration successful. Redirecting to login...");
 
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
       }, 1500);
     } catch (err) {
       setMessage(err.response?.data?.error || "Registration failed");
@@ -33,6 +35,18 @@ const Register = () => {
         <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
 
         <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Name
+            </label>
+            <input
+              type="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">
               Email

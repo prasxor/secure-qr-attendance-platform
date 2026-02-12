@@ -32,7 +32,8 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("token", res.data.access_token);
         setUser({
             user_id: res.data.user_id,
-            is_admin: res.data.is_admin
+            is_admin: res.data.is_admin,
+            user_name : res.data.name
         });
     };
 
