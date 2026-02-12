@@ -13,5 +13,6 @@ def generate_qr():
     qr_image = generate_qr_image(token)
 
     return jsonify({
+        "token": token,
         "qr_image_base64": qr_image
     }), 200
