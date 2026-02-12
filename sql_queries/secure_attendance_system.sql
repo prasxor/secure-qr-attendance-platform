@@ -14,3 +14,6 @@ DESCRIBE profiles;
 UPDATE users set is_admin=1 where email = 'test@example.com';
 
 select * from users;
+select * from attendance;
+
+DESCRIBE attendance;
